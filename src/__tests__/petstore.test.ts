@@ -1,9 +1,9 @@
-import { petApi } from '../api/petstore';
+import { petApi, Pet } from '../api/petstore';
 
 describe('Petstore API Tests', () => {
-  let createdPetId: number;
+  let createdPetIds: number[] = [];
 
-  const testPet = {
+  const testPet: Pet = {
     id: 0,
     category: { id: 1, name: 'Dogs' },
     name: 'Buddy',
@@ -12,15 +12,27 @@ describe('Petstore API Tests', () => {
     status: 'available',
   };
 
+  afterAll(async () => {
+    for (const petId of createdPetIds) {
+      try {
+        await petApi.deletePet(petId);
+        console.log(`Cleaned up pet with ID: ${petId}`);
+      } catch (error) {
+        console.error(`Failed to clean up pet with ID: ${petId}`, error);
+      }
+    }
+  });
+
   test('Should create a new pet', async () => {
     const response = await petApi.addPet(testPet);
     console.log('Created pet:', response);
     expect(response.id).toBeDefined();
     expect(response.name).toBe('Buddy');
-    createdPetId = response.id;
+    createdPetIds.push(response.id);
   });
 
   test('Should get the created pet', async () => {
+    const createdPetId = createdPetIds[0];
     try {
       const pet = await petApi.getPet(createdPetId);
       console.log('Retrieved pet:', pet);
@@ -39,15 +51,21 @@ describe('Petstore API Tests', () => {
   });
 
   test('Should update the pet', async () => {
-    const updatedPet = { ...testPet, id: createdPetId, name: 'Max' };
+    const createdPetId = createdPetIds[0];
+    const updatedPet: Pet = { ...testPet, id: createdPetId, name: 'Max' };
     const response = await petApi.updatePet(updatedPet);
     console.log('Updated pet:', response);
     expect(response.name).toBe('Max');
   });
 
   test('Should delete the pet', async () => {
-    await petApi.deletePet(createdPetId);
-    await expect(petApi.getPet(createdPetId)).rejects.toThrow();
+    const petToDelete = await petApi.addPet({ ...testPet, name: 'ToDelete' });
+    createdPetIds.push(petToDelete.id);
+    
+    await petApi.deletePet(petToDelete.id);
+    await expect(petApi.getPet(petToDelete.id)).rejects.toThrow();
+    
+    createdPetIds = createdPetIds.filter(id => id !== petToDelete.id);
   });
 
   test('Should handle invalid pet ID', async () => {
@@ -64,7 +82,7 @@ describe('Petstore API Tests', () => {
         id: 1,
         name: 'tag'
       }
-    };
+    } as unknown as Pet;
 
     await expect(petApi.addPet(invalidPet)).rejects.toThrow();
 
