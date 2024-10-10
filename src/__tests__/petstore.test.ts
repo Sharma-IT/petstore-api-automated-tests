@@ -1,16 +1,8 @@
 import { petApi, Pet } from '../api/petstore';
+import { createPet } from './../factories/petFactory';
 
 describe('Petstore API Tests', () => {
   let createdPetIds: number[] = [];
-
-  const testPet: Pet = {
-    id: 0,
-    category: { id: 1, name: 'Dogs' },
-    name: 'Buddy',
-    photoUrls: ['https://example.com/dog.jpg'],
-    tags: [{ id: 1, name: 'friendly' }],
-    status: 'available',
-  };
 
   afterAll(async () => {
     for (const petId of createdPetIds) {
@@ -24,20 +16,24 @@ describe('Petstore API Tests', () => {
   });
 
   test('Should create a new pet', async () => {
+    const testPet = createPet();
     const response = await petApi.addPet(testPet);
     console.log('Created pet:', response);
     expect(response.id).toBeDefined();
-    expect(response.name).toBe('Buddy');
+    expect(response.name).toBe(testPet.name);
     createdPetIds.push(response.id);
   });
 
   test('Should get the created pet', async () => {
-    const createdPetId = createdPetIds[0];
+    const testPet = createPet();
+    const createdPet = await petApi.addPet(testPet);
+    createdPetIds.push(createdPet.id);
+
     try {
-      const pet = await petApi.getPet(createdPetId);
-      console.log('Retrieved pet:', pet);
-      expect(pet.id).toBe(createdPetId);
-      expect(pet.name).toBe('Buddy');
+      const retrievedPet = await petApi.getPet(createdPet.id);
+      console.log('Retrieved pet:', retrievedPet);
+      expect(retrievedPet.id).toBe(createdPet.id);
+      expect(retrievedPet.name).toBe(testPet.name);
     } catch (error: any) {
       console.error(
         'Failed to retrieve the pet:',
@@ -51,21 +47,27 @@ describe('Petstore API Tests', () => {
   });
 
   test('Should update the pet', async () => {
-    const createdPetId = createdPetIds[0];
-    const updatedPet: Pet = { ...testPet, id: createdPetId, name: 'Max' };
+    const testPet = createPet();
+    const createdPet = await petApi.addPet(testPet);
+    createdPetIds.push(createdPet.id);
+
+    const updatedPet: Pet = {
+      ...createdPet,
+      name: 'Updated ' + createdPet.name,
+    };
     const response = await petApi.updatePet(updatedPet);
     console.log('Updated pet:', response);
-    expect(response.name).toBe('Max');
+    expect(response.name).toBe(updatedPet.name);
   });
 
   test('Should delete the pet', async () => {
-    const petToDelete = await petApi.addPet({ ...testPet, name: 'ToDelete' });
+    const petToDelete = await petApi.addPet(createPet());
     createdPetIds.push(petToDelete.id);
-    
+
     await petApi.deletePet(petToDelete.id);
     await expect(petApi.getPet(petToDelete.id)).rejects.toThrow();
-    
-    createdPetIds = createdPetIds.filter(id => id !== petToDelete.id);
+
+    createdPetIds = createdPetIds.filter((id) => id !== petToDelete.id);
   });
 
   test('Should handle invalid pet ID', async () => {
@@ -74,14 +76,14 @@ describe('Petstore API Tests', () => {
 
   test('Should handle invalid data format', async () => {
     const invalidPet = {
-      id: 'not-a-number', 
-      name: 123, 
-      status: 'invalid-status', 
-      photoUrls: 'not-an-array', 
-      tags: { 
+      id: 'not-a-number',
+      name: 123,
+      status: 'invalid-status',
+      photoUrls: 'not-an-array',
+      tags: {
         id: 1,
-        name: 'tag'
-      }
+        name: 'tag',
+      },
     } as unknown as Pet;
 
     await expect(petApi.addPet(invalidPet)).rejects.toThrow();
