@@ -1,0 +1,32 @@
+{
+  "name": "petstore-api-automated-tests",
+  "version": "1.0.0",
+  "description": "REST API automation test suite for the https://petstore.swagger.io/ API.",
+  "type": "module",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Sharma-IT/petstore-api-automated-tests.git"
+  },
+  "keywords": [
+    "REST API",
+    "Swagger",
+    "API Test Automation"
+  ],
+  "author": "Shubham Sharma",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/Sharma-IT/petstore-api-automated-tests/issues"
+  },
+  "homepage": "https://github.com/Sharma-IT/petstore-api-automated-tests#readme",
+  "devDependencies": {
+    "@types/jest": "^29.5.13",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.5"
+  },
+  "dependencies": {
+    "axios": "^1.7.7"
+  }
+}

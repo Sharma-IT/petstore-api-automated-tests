@@ -1,4 +1,4 @@
-# Petstore API Automated Tests
+# Exercise: Petstore API Automated Tests
 
 ## Objective
 
