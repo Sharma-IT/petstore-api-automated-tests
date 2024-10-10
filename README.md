@@ -1,8 +1,6 @@
 # Petstore API Automated Tests
 
-## Objective
-
-Implement REST API automated tests for the https://petstore.swagger.io/ API.
+A REST API automated test suite for the https://petstore.swagger.io/ API.
 
 ## Implementation Details
 
