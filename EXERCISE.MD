@@ -37,6 +37,7 @@ npm test
 
 - `src/api/petstore.ts`: API client
 - `src/__tests__/petstore.test.ts`: Test cases
+- `src/factories/petFactor.ts`: Test data factories
 
 ## Reporting
 
