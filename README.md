@@ -1,6 +1,6 @@
 # Petstore API Automated Tests
 
-A REST API automated test suite for the petstore.swagger.io's REST API.
+A REST API automated test suite for the petstore.swagger.io REST API.
 
 ## Implementation Details
 
